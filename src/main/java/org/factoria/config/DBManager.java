@@ -9,7 +9,7 @@ public class DBManager {
     //hay que proteger al informacion sensible
     private static final String URL = "jdbc:mysql://localhost:3306/event_app";
     private static final String USER = "root";
-    private static final String PASSWORD = "root";
+    private static final String PASSWORD = System.getenv("PASSWORD");
 
     private static Connection connection;
 

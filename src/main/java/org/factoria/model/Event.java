@@ -12,6 +12,13 @@ public class Event {
         this.price = price;
     }
 
+    public Event() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

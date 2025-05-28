@@ -1,19 +1,18 @@
 package org.factoria;
 
 import org.factoria.config.DBManager;
+import org.factoria.controller.EventController;
 import org.factoria.model.Event;
 import org.factoria.repository.EventRepository;
+import org.factoria.view.EventView;
 
 public class Main {
     public static void main(String[] args) {
-        //DBManager.initConnection();
-        //DBManager.closeConnection();
-
         EventRepository eventRepository = new EventRepository();
+        EventController eventController = new EventController(eventRepository);
+        EventView eventView = new EventView(eventController);
+        //eventView.saveEventView();
 
-        Event event = new Event("Evento 1", "El mejor evento del mundo", 55.5);
-        Event event2 = new Event("Evento 2", "El mejor evento del mundo", 60.5);
-        //eventRepository.createEvent(event);
-        eventRepository.createEvent(event2);
+        eventView.showEvents();
     }
 }
