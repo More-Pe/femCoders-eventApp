@@ -78,7 +78,7 @@ El proyecto sigue una arquitectura por capas basada en el patrón MVC:
             </dependency>
         </dependencies>
     ```
-
+---
 
 ### 2. **Configura tu base de datos MySQL en Workbench**
 
@@ -141,6 +141,8 @@ El proyecto sigue una arquitectura por capas basada en el patrón MVC:
     - Devuelve resultados a la vista.
 - **Por qué es importante:** Separa la lógica de negocio de la presentación y el acceso a datos, facilitando mantenimiento y escalabilidad.
 
+---
+
 ### 7. 📁 **`EventView.java`** (Vista / Interfaz de usuario)
 
 - **Qué es:** Clase que se comunica con el usuario, en este caso por consola.
@@ -169,5 +171,3 @@ El proyecto sigue una arquitectura por capas basada en el patrón MVC:
 - **Recuerda crear la base de datos y la tabla** en MySQL antes de ejecutar la app.
 - **Usa try/catch para manejar errores** de SQL.
 - **Configura las variables de entorno** con las credenciales de tu usuario MySQL.
-
----
