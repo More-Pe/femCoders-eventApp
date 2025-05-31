@@ -20,21 +20,23 @@ Este repositorio es un **fork** del proyecto original y ha sido **comentado lín
 
 ```bash
 src/
-└── main/
+├── main/
+│   └── java.org.factoria/
+│           ├── Main.java
+│           ├── config/
+│           │   └── DBManager.java
+│           ├── model/
+│           │   └── Event.java
+│           ├── repository/
+│           │   └── EventRepository.java
+│           ├── controller/
+│           │   └── EventController.java
+│           └── view/
+│               └── EventView.java
+└── test/
     └── java/
-        └── org/
-            └── factoria/
-                ├── Main.java
-                ├── config/
-                │   └── DBManager.java
-                ├── model/
-                │   └── Event.java
-                ├── repository/
-                │   └── EventRepository.java
-                ├── controller/
-                │   └── EventController.java
-                └── view/
-                    └── EventView.java
+        └── org.factoria.controller/
+                    └── EventControllerTest.java
 ```
 
 ## 📋 Estructura del proyecto
@@ -278,7 +280,7 @@ Agrega esta configuración en la sección `<build>` de tu `pom.xml` para evitar 
 
 ### 3. Crear archivo de prueba EventControllerTest.java
 
-**Ubicación sugerida:** `src/test/java/org/factoria/controller/EventControllerTest.java`
+**Ubicación sugerida:** `src/test/java/org.factoria.controller/EventControllerTest.java`
 
 ```java
 package org.factoria.controller;
