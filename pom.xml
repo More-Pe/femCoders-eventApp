@@ -2,46 +2,83 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- Versión del modelo POM que usamos -->
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>event_app</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <!-- Identificación del proyecto -->
+    <groupId>org.example</groupId>        <!-- Nombre del grupo u organización -->
+    <artifactId>event_app</artifactId>    <!-- Nombre del proyecto -->
+    <version>1.0-SNAPSHOT</version>       <!-- Versión del proyecto (SNAPSHOT = en desarrollo) -->
 
+    <!-- Configuración general del proyecto -->
     <properties>
+        <!-- Versión de Java que usaremos para compilar y ejecutar -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <!-- Codificación de caracteres para evitar problemas con acentos -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!-- DEPENDENCIAS: librerías externas que necesita nuestro proyecto -->
     <dependencies>
+
+        <!-- MYSQL CONNECTOR: Para conectarse a bases de datos MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>9.3.0</version>
+            <!-- Esta dependencia estará disponible tanto en compilación como en ejecución -->
         </dependency>
 
-        <!-- Dependencia para manejar archivos .env -->
+        <!-- DOTENV: Para leer archivos .env (variables de entorno) -->
+        <!-- Útil para guardar contraseñas de BD, URLs, etc. de forma segura -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
             <version>3.0.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+        <!-- JUNIT JUPITER: Framework para escribir y ejecutar tests -->
+        <!-- Solo se usa durante las pruebas, no en la aplicación final -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.12.2</version>
-            <scope>test</scope>
+            <scope>test</scope> <!-- Solo disponible durante tests -->
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
+
+        <!-- MOCKITO: Para crear objetos "falsos" (mocks) en los tests -->
+        <!-- Útil para probar código sin depender de bases de datos reales, APIs, etc. -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>5.18.0</version>
-            <scope>test</scope>
+            <scope>test</scope> <!-- Solo disponible durante tests -->
         </dependency>
+
     </dependencies>
+
+    <!-- CONFIGURACIÓN DE BUILD: cómo compilar y ejecutar el proyecto -->
+    <build>
+        <plugins>
+
+            <!-- SUREFIRE PLUGIN: Se encarga de ejecutar los tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <!--
+                    argLine: parámetros adicionales para la JVM cuando ejecuta tests
+                    -XX:+EnableDynamicAgentLoading: permite que Mockito cargue sus herramientas dinámicamente (necesario para Java 21+)
+                    -Xshare:off: desactiva el Class Data Sharing para evitar warnings
+                    -->
+                    <argLine>-XX:+EnableDynamicAgentLoading -Xshare:off</argLine>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

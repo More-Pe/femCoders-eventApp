@@ -225,37 +225,58 @@ public class DBManager {
 
 ## 🧪 PASO A PASO DETALLADO PARA HACER TESTING UNITARIOS
 
-Para garantizar que el controlador funcione correctamente y que las dependencias como el repositorio sean llamadas adecuadamente, se implementan pruebas unitarias utilizando JUnit 5 y Mockito.
+Para garantizar que el controlador funcione correctamente y que las dependencias como el repositorio sean llamadas adecuadamente, se implementan pruebas unitarias utilizando **JUnit 5** y **Mockito**.
 
 ### 1. Agregar dependencias en pom.xml
 
-Agrega estas dependencias en la sección `<dependencies>` de tu archivo pom.xml:
+Agrega estas dependencias en la sección `<dependencies>` de tu archivo `pom.xml`:
 
 ```xml
-<!-- pom.xml -->
+<!-- JUNIT JUPITER: Framework para escribir y ejecutar tests -->
+<!-- Solo se usa durante las pruebas, no en la aplicación final -->
 <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter</artifactId>
-    <version>5.10.0</version>
-    <scope>test</scope>
+    <version>5.12.2</version>
+    <scope>test</scope> <!-- Solo disponible durante tests -->
 </dependency>
 
-<dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-core</artifactId>
-    <version>5.11.0</version>
-    <scope>test</scope>
-</dependency>
-
+<!-- MOCKITO: Para crear objetos "falsos" (mocks) en los tests -->
+<!-- Útil para probar código sin depender de bases de datos reales, APIs, etc. -->
 <dependency>
     <groupId>org.mockito</groupId>
     <artifactId>mockito-junit-jupiter</artifactId>
-    <version>5.11.0</version>
-    <scope>test</scope>
+    <version>5.18.0</version>
+    <scope>test</scope> <!-- Solo disponible durante tests -->
 </dependency>
 ```
 
-### 2. Crear archivo de prueba EventControllerTest.java
+### 2. Configurar Maven para Java 21 + Mockito
+
+Agrega esta configuración en la sección `<build>` de tu `pom.xml` para evitar warnings:
+
+```xml
+<build>
+    <plugins>
+        <!-- SUREFIRE PLUGIN: Se encarga de ejecutar los tests -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.2.5</version>
+            <configuration>
+                <!-- 
+                Parámetros para la JVM cuando ejecuta tests:
+                -XX:+EnableDynamicAgentLoading: permite que Mockito funcione con Java 21+
+                -Xshare:off: elimina warnings de Class Data Sharing
+                -->
+                <argLine>-XX:+EnableDynamicAgentLoading -Xshare:off</argLine>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+### 3. Crear archivo de prueba EventControllerTest.java
 
 **Ubicación sugerida:** `src/test/java/org/factoria/controller/EventControllerTest.java`
 
@@ -277,52 +298,96 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class EventControllerTest {
 
-    // Simulamos el repositorio para no usar una base de datos real
+    // @Mock: Crea un objeto simulado del repositorio
+    // No ejecuta código real, solo simula el comportamiento
     @Mock
     private EventRepository eventRepository;
 
-    // Inyectamos el mock del repositorio dentro del controlador
+    // @InjectMocks: Crea el controlador e inyecta automáticamente el mock
+    // Es como hacer: new EventController(eventRepository)
     @InjectMocks
     private EventController eventController;
 
-    // Esta prueba verifica que el controlador llama al repositorio al guardar un evento
+    // @Test: Indica que este método es una prueba unitaria
     @Test
     void saveEventController_shouldCallRepository() {
-        // Arrange: creamos un evento ficticio
-        Event event = new Event("Evento 1", "el mejor", 63.2);
+        // ARRANGE (Preparar): creamos un evento ficticio para la prueba
+        Event event = new Event("Evento de prueba", "Descripción de prueba", 50.0);
 
-        // Act: llamamos al método del controlador
+        // ACT (Actuar): ejecutamos el método que queremos probar
         eventController.saveEventController(event);
 
-        // Assert: verificamos que el método saveEvent del repositorio se llamó exactamente una vez
+        // ASSERT (Verificar): comprobamos que el repositorio fue llamado correctamente
+        // verify() verifica que el método saveEvent se llamó exactamente 1 vez con nuestro evento
         verify(eventRepository, times(1)).saveEvent(event);
     }
 }
 ```
 
-### 🧪 ¿Qué estamos probando?
+### 4. Ejecutar las pruebas
 
-- Que el controlador llama correctamente al método del repositorio.
-- Que no se ejecuta código SQL real gracias al uso de un mock.
-- Que la lógica del controlador se prueba de forma aislada del resto del sistema.
+Puedes ejecutar las pruebas de estas formas:
+
+```bash
+# Ejecutar todos los tests
+mvn test
+
+# Ejecutar solo una clase de test específica
+mvn test -Dtest=EventControllerTest
+
+# Limpiar, compilar y ejecutar tests
+mvn clean test
+```
+
+### 🧪 ¿Qué estamos probando exactamente?
+
+1. **Que el controlador llama correctamente al repositorio** - Verificamos que cuando guardamos un evento, el controlador efectivamente llama al método `saveEvent()` del repositorio.
+
+2. **Aislamiento de dependencias** - No ejecutamos código SQL real gracias al uso de mocks. La base de datos no se usa en absoluto.
+
+3. **Comportamiento específico** - Probamos solo la lógica del controlador, sin preocuparnos por si la base de datos funciona o no.
 
 ### 🔧 ¿Por qué usamos @Mock y @InjectMocks?
 
-- **@Mock:** crea un objeto simulado de EventRepository, que no hace operaciones reales.
-- **@InjectMocks:** crea un EventController y le inyecta el mock automáticamente.
+- **`@Mock`**: Crea un objeto "falso" de `EventRepository` que no hace operaciones reales de base de datos.
+- **`@InjectMocks`**: Crea un `EventController` real y le inyecta automáticamente el mock del repositorio.
+- **Resultado**: Podemos probar el controlador sin necesidad de tener MySQL funcionando.
 
-Esto permite probar solo el comportamiento del controlador sin requerir base de datos.
+### 📊 Patrón AAA en Testing
 
-### 📋 Buenas prácticas
+Nuestro test sigue el patrón **AAA**:
 
-- Usa `verify()` para asegurarte de que se llaman los métodos correctos.
-- Usa mocks solo cuando no quieras ejecutar la lógica real (como conexiones a base de datos).
-- Aísla cada unidad que pruebes: prueba el controlador sin necesidad de probar el repositorio a la vez.
+- **Arrange** (Preparar): Creamos los datos necesarios para la prueba
+- **Act** (Actuar): Ejecutamos el método que queremos probar
+- **Assert** (Verificar): Comprobamos que el resultado es el esperado
 
----
+### 📋 Buenas prácticas para testing
 
-## 📝 Notas finales
+✅ **Usa `verify()`** para asegurarte de que se llaman los métodos correctos con los parámetros esperados.
 
-- **Recuerda crear la base de datos y la tabla** en MySQL antes de ejecutar la app.
-- **Usa try/catch para manejar errores** de SQL.
-- **Configura las variables de entorno** con las credenciales de tu usuario MySQL.
+✅ **Usa mocks** cuando no quieras ejecutar lógica real (como conexiones a base de datos, llamadas a APIs, etc.).
+
+✅ **Aísla cada unidad** que pruebes: prueba el controlador sin necesidad de probar el repositorio a la vez.
+
+✅ **Nombres descriptivos**: El nombre del test debe explicar qué hace y qué espera.
+
+✅ **Una verificación por test**: Cada test debe probar una sola cosa específica.
+
+### 🚀 Comandos útiles para development
+
+```bash
+# Compilar sin ejecutar tests
+mvn compile
+
+# Ejecutar tests en modo verbose (más información)
+mvn test -X
+
+# Generar reporte de cobertura (si tienes JaCoCo configurado)
+mvn test jacoco:report
+```
+
+### ⚠️ Notas importantes
+
+- **Los tests no necesitan base de datos**: Gracias a los mocks, puedes ejecutar tests aunque MySQL esté apagado.
+- **Rapidez**: Los tests unitarios son muy rápidos porque no hacen operaciones de I/O reales.
+- **Independencia**: Cada test debe poder ejecutarse solo, sin depender de otros tests.
